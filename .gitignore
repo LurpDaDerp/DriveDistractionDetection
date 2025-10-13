@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.pyc
+.env/
+venv/
+.ipynb_checkpoints/
+.DS_Store
+*.pth
+
+# Data
+data/
+*.csv
+*.zip
