@@ -15,10 +15,10 @@ class_names = [
 ]
 
 #load image
-img_path = "C:/Users/lurpd/Documents/Development/Datasets/MyData/31.png"
+img_path = "C:/Users/lurpd/Documents/Development/Datasets/MyData/28.jpg"
 
 target_size = (128, 128)
-img = Image.open(img_path).convert("RGB")
+img = Image.open(img_path).convert("L") 
 
 img = ImageOps.pad(img, target_size, color=(0, 0, 0), method=Image.Resampling.LANCZOS)
 
