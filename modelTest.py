@@ -15,7 +15,7 @@ class_names = [
 ]
 
 #load image
-img_path = "C:/Users/lurpd/Documents/Development/Datasets/MyData/39.png"
+img_path = "C:/Users/lurpd/Documents/Development/Datasets/MyData/31.png"
 
 target_size = (128, 128)
 img = Image.open(img_path).convert("RGB")
@@ -24,7 +24,7 @@ img = ImageOps.pad(img, target_size, color=(0, 0, 0), method=Image.Resampling.LA
 
 #normalize
 img_array = image.img_to_array(img)
-img_array = np.expand_dims(img_array, axis=0) / 127.0 
+img_array = np.expand_dims(img_array, axis=0) / 255.0
 
 #run model
 predictions = model.predict(img_array)
