@@ -1,50 +1,61 @@
 from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing import image
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image, ImageOps
+import os
+import math
 
 #load model
 model = load_model("notebooks/distracted_driver_detection.keras")
 
 #class names
-class_names = [
-    "Safe driving", 
-    "Operating the radio",
-    "Drinking", 
-    "Reaching behind", 
-    "Hair and makeup", 
-    "Talking to passenger",
-    "General Distracted",
-    "Sleepy",
-    "Yawn"
-]
+class_names = ["Safe driving", "Distracted", "Tired"]
 
-#load and preprocess image
-img_path = "C:/Users/lurpd/Documents/Development/Datasets/MyData/49.png"
+#folder
+folder = "C:/Users/lurpd/Documents/Development/Datasets/MyData/"
 target_size = (128, 128)
 
-#open image in grayscale
-img = Image.open(img_path).convert("L")
+#get images from folder
+image_ids = [i for i in range(30, 63) if os.path.exists(os.path.join(folder, f"{i}.png"))]
 
-#letterbox
-img = ImageOps.pad(img, target_size, color=0, method=Image.Resampling.LANCZOS)
+#display grid
+cols = 8
+rows = math.ceil(len(image_ids) / cols)
 
-#convert to NumPy and normalize
-img_array = np.array(img).astype(np.float32) / 255.0
-img_array = np.expand_dims(img_array, axis=(0, -1))  
+max_width_px = 2500
+max_height_px = 1300
+dpi = 100
 
-#prediction
-predictions = model.predict(img_array)
-predicted_class = np.argmax(predictions, axis=1)[0]
-predicted_label = class_names[predicted_class]
+fig_width = min(max_width_px / dpi, cols * 3)
+fig_height = min(max_height_px / dpi, rows * 3)
 
-#output
-print("Predicted class index:", predicted_class)
-print("Predicted label:", predicted_label)
+plt.figure(figsize=(fig_width, fig_height), dpi=dpi)
 
-#display for debug
-plt.imshow(img, cmap='gray')
-plt.axis("off")
-plt.title(f"Prediction: {predicted_label}")
+#image process/display
+for idx, i in enumerate(image_ids):
+    img_path = os.path.join(folder, f"{i}.png")
+
+    #preprocess
+    img = Image.open(img_path).convert("L")
+    img = ImageOps.pad(img, target_size, color=0, method=Image.Resampling.LANCZOS)
+    img_array = np.expand_dims(np.array(img).astype(np.float32) / 255.0, axis=(0, -1))
+
+    #predict
+    predictions = model.predict(img_array, verbose=0)
+    predicted_class = np.argmax(predictions, axis=1)[0]
+    predicted_label = class_names[predicted_class]
+    confidence = np.max(predictions) * 100
+
+    #display
+    plt.subplot(rows, cols, idx + 1)
+    plt.imshow(img, cmap="gray")
+    plt.axis("off")
+    plt.text(
+        0.5, -0.05, 
+        f"{i}.png\n{predicted_label} ({confidence:.1f}%)",
+        fontsize=9,
+        ha="center", va="top", transform=plt.gca().transAxes
+    )
+
+plt.tight_layout()
 plt.show()
